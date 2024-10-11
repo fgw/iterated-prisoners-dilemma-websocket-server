@@ -30,6 +30,4 @@ if __name__ == "__main__":
     dt = datetime.datetime.now(pytz.timezone("Asia/Singapore")) 
     current_time_str = dt.strftime("%Y-%m-%dT%H:%M:%S%z")
     f.write(f"# {current_time_str}\n")
-
-    # Add participants as header
-    f.write(f"{a},{b}")
+    f.write(f"# Participants: [{a},{b}]\n")

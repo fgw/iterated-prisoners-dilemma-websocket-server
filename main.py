@@ -72,7 +72,6 @@ async def process_request(connection, request) -> Response:
     if last_line == "# COMPLETED":
       return Response(400, "Completed tournament", Headers({}))
 
-
   # TODO: Check that participant is part of the tournament
 
   token = request.headers.get('Authorization')
@@ -174,6 +173,9 @@ async def main(port: int = 8000):
       completed_tournaments = []
       for tournament_uuid, tournament in TOURNAMENTS.items():
         if tournament['stage'] == 'Waiting for players' and len(tournament['participants']) == 2 and None not in tournament['state']:
+            with open(get_history_file(tournament_uuid), 'a') as f:
+              line = ','.join(tournament['participants'])
+              f.write(f"{line}\n")
           tournament['stage'] = 'Started'
         if tournament['stage'] == 'Started':
           state = [s for s in tournament['state']]
