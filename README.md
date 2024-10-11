@@ -10,6 +10,9 @@ One limitation of this approach is that the games are dependent on the participa
 To address this, each round has a timeout.
 If a participant fails to provide a response within the timeout, their turn is forfeit.
 
+From testing, 200ms a round with 2 python clients appears to be fairly reliable. 
+There are some dropouts but its not common.
+
 # References
 
 https://github.com/oldgalileo/bastille
