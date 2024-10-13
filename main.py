@@ -1,6 +1,8 @@
 import asyncio
+import csv
 import logging
 import os
+import re
 from typing import Tuple
 from urllib.parse import urlparse, parse_qs
 
@@ -17,6 +19,7 @@ CONNECTIONS = {}
 TOURNAMENTS = {}
 
 history_path = os.path.join("tournaments")
+participants_file = os.path.join("participants", "participants.csv")
 
 
 def get_history_file(tournament):
@@ -63,20 +66,36 @@ async def process_request(connection, request) -> Response:
     })
     return Response(400, "No tournament", Headers({}))
 
-  # TODO: Check if tournament is completed
+  pattern = re.compile("^# Participants: \[(?P<a>[a-zA-Z0-9_-]+),(?P<b>[a-zA-Z0-9_-]+)\]$")
+  tournament_participants = None
   with open(history_filepath, 'r') as f:
     for line in f:
+      if tournament_participants:
         pass
+      m = pattern.search(line)
+      # Check if both participants are found in line
+      if m and m.group('b'):
+        tournament_participants = (m.group('a'), m.group('b'))
+
     # File should not be empty so there's no need to handle that case
     last_line = line
     if last_line == "# COMPLETED":
       return Response(400, "Completed tournament", Headers({}))
 
-  # TODO: Check that participant is part of the tournament
+  if participant not in tournament_participants:
+    return Response(400, "Participant not in tournament", Headers({}))
 
   token = request.headers.get('Authorization')
 
-  # TODO: Check that token is valid for participant
+  authenticated = False
+  with open(participants_file, 'r', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+      if participant == row['participant'] and token == row['token']:
+        authenticated = True
+
+  if not authenticated:
+    return Response(400, "Invalid token", Headers({}))
 
   return 
 
