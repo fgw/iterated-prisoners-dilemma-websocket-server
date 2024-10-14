@@ -73,11 +73,8 @@ loop n Rounds
     and B
         B->>Server: Send choice
     end
-    par A
-        Server->>A: Send B choice
-    and B
-        Server->>-B: Send A choice
-    end
+    Server->>A: Send B choice
+    Server->>-B: Send A choice
 end
 ```
 
