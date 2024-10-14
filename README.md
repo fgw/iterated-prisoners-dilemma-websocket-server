@@ -54,9 +54,12 @@ participant Server
 participant A
 participant B
 Note right of Server: Generate tokens
-Server->>A,B: Share token offline
+Note right of Server: Share tokens offline
 Note right of Server: Generate tournament(s)
-Server->>A,B: Broadcast tournament
+Note right of Server: Broadcase tournaments
+A->>Server: Connect with participants in query & token in auth header
+Server->>+A: Upgrade connecti if tournament, participant and token are valid
+
 ```
 
 
