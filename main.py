@@ -24,7 +24,18 @@ participants_file = os.path.join("participants", "participants.csv")
 
 def get_history_file(tournament):
   return os.path.join(history_path, f"{tournament}.csv")
-  
+
+def sanitize_inputs(input):
+  """
+  Basic input sanitization
+  """
+  s = input.strip()
+  # UUID 32 hex chars + 4 dashes should be the max expected length
+  # token is 32 alphanunmeric characters
+  if len(input) > 36:
+    raise ValueError("input too long")
+  if not re.match(r'^[a-zA-Z0-9_-]+$', s):
+    raise ValueError("Invalid characters in input")
 
 def parse_url(url: str) -> Tuple[str, str]:
   """
@@ -43,6 +54,8 @@ def parse_url(url: str) -> Tuple[str, str]:
 async def process_request(connection, request) -> Response:
   try:
     tournament, participant = parse_url(request.path)
+    sanitize_inputs(tournament)
+    sanitize_inputs(participant)
   except Exception as e:
     logger.error({
       'message': "Failed to parse url",
@@ -66,6 +79,7 @@ async def process_request(connection, request) -> Response:
     })
     return Response(400, "No tournament", Headers({}))
 
+  # Invalid tournament file will cause an error to be thrown here so there shouldn't be a need to be too strict with tournament input
   pattern = re.compile("^# Participants: \[(?P<a>[a-zA-Z0-9_-]+),(?P<b>[a-zA-Z0-9_-]+)\]$")
   tournament_participants = None
   with open(history_filepath, 'r') as f:
@@ -84,8 +98,9 @@ async def process_request(connection, request) -> Response:
 
   if participant not in tournament_participants:
     return Response(400, "Participant not in tournament", Headers({}))
-
+  
   token = request.headers.get('Authorization')
+  sanitize_inputs(token)
 
   authenticated = False
   with open(participants_file, 'r', newline='') as csvfile:
@@ -150,7 +165,10 @@ async def handler(websocket):
 
       for i, p in enumerate(TOURNAMENTS[tournament]['participants']):
         if participant == p:
-          TOURNAMENTS[tournament]['state'][i] = message
+          # Input validation to prevent malicious input
+          choice = message.strip()
+          if choice in ('C', 'B'):
+            TOURNAMENTS[tournament]['state'][i] = message
   finally:
     # Handle disconnect
     del CONNECTIONS[tournament][participant]
