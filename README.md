@@ -13,6 +13,53 @@ If a participant fails to provide a response within the timeout, their turn is f
 From testing, 200ms a round with 2 python clients appears to be fairly reliable. 
 There are some dropouts but its not common.
 
+## Usage
+
+1. Prepare a participants file.
+
+example: 
+```
+participant,token
+group1,
+group2,
+group3,
+...
+```
+
+2. Run `python generate_participants.py` to generate tokens for participants.
+
+Particpiants file is hardcoded at `participants/participants.csv`
+
+3. Run websocket server with `python main.py`
+
+4. Generate tournament with `python create_tournament.py <participant-A> <participant-B>`
+
+Tournaments are hardcoded to be output to `tournaments/<tournament_uuid>.csv`
+
+5. Setup is now complete, clients can join by opening a websocket connection to the server with participant in the query string and token in the authentication header.
+
+i.e. 
+`?participant=<participant>`
+`'Authorization: <token>`
+
+Tournament will start once both participants and run until its over. 
+
+Repeat step 4 and 5 for each tournament.
+
+## Process flow
+
+```mermaid
+sequenceDiagram
+participant Server
+participant A
+participant B
+Note right of Server: Generate tokens
+Server->>A,B: Share token offline
+Note right of Server: Generate tournament(s)
+Server->>A,B: Broadcast tournament
+```
+
+
 # References
 
 https://github.com/oldgalileo/bastille
