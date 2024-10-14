@@ -56,10 +56,29 @@ participant B
 Note right of Server: Generate tokens
 Note right of Server: Share tokens offline
 Note right of Server: Generate tournament(s)
-Note right of Server: Broadcase tournaments
-A->>Server: Connect with participants in query & token in auth header
-Server->>+A: Upgrade connecti if tournament, participant and token are valid
-
+Note right of Server: Broadcast tournaments
+par A Auth
+    A->>+Server: Connect with participants in query & token in auth header
+    alt valid request
+        Server->>A: Upgrade connection
+    else invalid tournament/participant/token
+        Server->>A: Drop connection with client error
+    end
+and B Auth
+    B->Server: See A Auth
+end
+loop n Rounds
+    par A
+        A->>Server: Send choice
+    and B
+        B->>Server: Send choice
+    end
+    par A
+        Server->>A: Send B choice
+    and B
+        Server->>-B: Send A choice
+    end
+end
 ```
 
 
