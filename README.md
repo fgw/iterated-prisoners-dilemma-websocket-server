@@ -13,6 +13,9 @@ If a participant fails to provide a response within the timeout, their turn is f
 From testing, 200ms a round with 2 python clients appears to be fairly reliable. 
 There are some dropouts but its not common.
 
+> **If you are a participant and happened to have stumbled upon this repository**
+> You are strongly encouraged to open an issue/PR if you have spotted any vulnerabilities and discouraged from exploiting them in the spirit of fair play.
+
 ## Usage
 
 1. Prepare a participants file.
