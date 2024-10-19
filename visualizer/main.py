@@ -46,6 +46,9 @@ def calculate_scores(df):
         [(0, 5), (1, 1)] # B
     ]
 
+    forfeit_score = 0
+    opponent_forfeitted_score = 3
+
     scores = [[], []]
     cumulative_scores = [0, 0] 
 
@@ -62,8 +65,16 @@ def calculate_scores(df):
         elif row[df.columns[0]] == 'B' and row[df.columns[1]] == 'B':
             cumulative_scores[0] += scoring_matrix[1][1][0]
             cumulative_scores[1] += scoring_matrix[1][1][1]
-        
-        # TODO: Handle forfeits
+        elif row[df.columns[0]] == 'Forfeit' and row[df.columns[1]] == 'Forfeit':
+            cumulative_scores[0] += forfeit_score
+            cumulative_scores[1] += forfeit_score
+        elif row[df.columns[0]] == 'Forfeit':
+            cumulative_scores[0] += forfeit_score
+            cumulative_scores[1] += opponent_forfeitted_score
+        elif row[df.columns[1]] == 'Forfeit':
+            cumulative_scores[0] += opponent_forfeitted_score
+            cumulative_scores[1] += forfeit_score
+
 
         scores[0].append(cumulative_scores[0])
         scores[1].append(cumulative_scores[1])
@@ -143,4 +154,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     app.run_server(debug=args.debug)
-    
