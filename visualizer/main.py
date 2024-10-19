@@ -4,8 +4,10 @@ import io
 
 import dash
 from dash import dcc, html, Input, Output
+import plotly.express as px
 import pandas as pd
 from pandas.errors import EmptyDataError
+import numpy as np
 
 
 DATA_DIR = 'tournaments'
@@ -82,6 +84,8 @@ def update_output(n):
 
     for df, filename in dfs:
         a_name, b_name = df.columns
+        # Remove '.csv'
+        tournament_uuid = filename[:-4]
 
         scores = calculate_scores(df)
 
@@ -91,8 +95,7 @@ def update_output(n):
                             {'x': list(range(len(scores[1]))), 'y': scores[1], 'type': 'line', 'name': b_name}
                         ],
                         'layout': {
-                            # Remove '.csv'
-                            'title': f'Score Progression {filename[:-4]}: {a_name} vs {b_name}',
+                            'title': f'Score Progression {tournament_uuid}: {a_name} vs {b_name}',
                             'xaxis': {'title': 'Iterations'},
                             'yaxis': {'title': 'Cumulative Score'},
                         }
@@ -100,7 +103,25 @@ def update_output(n):
 
         graphs.append(dcc.Graph(figure=score_fig))
 
-        # TODO: Plot choices
+        # Convert choices to numerical values: C -> 1, B -> 0
+        choice_matrix = df.replace({'C': 1.0, 'B': 0.0, 'Forfeit': 0.5}).values
+        # Transpose to show better
+        choice_matrix = choice_matrix.T
+        print(choice_matrix)
+
+        # Create heatmap using px.imshow
+        fig = px.imshow(
+            choice_matrix,
+            color_continuous_scale=[(0, 'red'), (0.33, 'red'), (0.33, 'gray'), (0.66, 'gray'), (0.66, 'blue'), (1, 'blue')],  # Blue for C (1), Red for B (0)
+            labels={'x': 'Rounds', 'y': 'Participant'},
+            title=f'Choices Heatmap: {tournament_uuid}',
+            zmin=0,  # Fixed minimum value for color scale
+            zmax=1   # Fixed maximum value for color scale
+        )
+        
+        fig.update_yaxes(tickvals=np.arange(2), ticktext=(a_name, b_name))
+
+        graphs.append(dcc.Graph(figure=fig))  # Add each figure to the list of graphs
 
     return graphs
 
