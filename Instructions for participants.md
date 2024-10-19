@@ -98,3 +98,9 @@ with connect(f"{url}/{tournament}?participant={participant}", additional_headers
         # Send your choice within the time limit or you will forfiet the round
         websocket.send(message)
 ```
+
+## Troubleshooting
+
+Ensure your Python version is >= 3.8
+
+Ensure that `websockets` [package](https://pypi.org/project/websockets/) is installed. `pip install websockets`

@@ -1,4 +1,6 @@
 import asyncio
+
+# pip install websockets
 from websockets.sync.client import connect
 
 from strategies import NaiveStrategy, TitForTatStrategy, RandomStrategy
