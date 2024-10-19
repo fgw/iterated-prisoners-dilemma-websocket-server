@@ -4,7 +4,7 @@ import io
 
 import dash
 from dash import dcc, html, Input, Output
-import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 from pandas.errors import EmptyDataError
 import numpy as np
@@ -16,7 +16,7 @@ app = dash.Dash(__name__)
 
 
 app.layout = html.Div([
-    html.H1("Iterative Prisoner's dilemma Visualizer"),
+    html.H1("Iterative Prisoner's Dilemma Visualizer"),
     html.Div(id='graphs-container'),
     dcc.Interval(
     id='interval-component',
@@ -107,21 +107,29 @@ def update_output(n):
         choice_matrix = df.replace({'C': 1.0, 'B': 0.0, 'Forfeit': 0.5}).values
         # Transpose to show better
         choice_matrix = choice_matrix.T
-        print(choice_matrix)
 
-        # Create heatmap using px.imshow
-        fig = px.imshow(
-            choice_matrix,
-            color_continuous_scale=[(0, 'red'), (0.33, 'red'), (0.33, 'gray'), (0.66, 'gray'), (0.66, 'blue'), (1, 'blue')],  # Blue for C (1), Red for B (0)
-            labels={'x': 'Rounds', 'y': 'Participant'},
-            title=f'Choices Heatmap: {tournament_uuid}',
-            zmin=0,  # Fixed minimum value for color scale
-            zmax=1   # Fixed maximum value for color scale
-        )
+        # Create a heatmap using go.Heatmap
+        choice_fig = go.Figure(data=go.Heatmap(
+            z=choice_matrix,
+            colorscale=[[0, 'red'], [0.5, 'gray'], [1, 'blue']],  # Red for B (0), Blue for C (1)
+            zmin=0,
+            zmax=1,
+            colorbar=dict(
+                title='Choices',
+                tickvals=[0, 0.5, 1],
+                ticktext=['B', 'Forfeit', 'C']  # Custom tick labels for the color scale
+            )
+        ))
         
-        fig.update_yaxes(tickvals=np.arange(2), ticktext=(a_name, b_name))
+        # Set axis titles
+        choice_fig.update_layout(
+            title=f'Choices Heatmap {tournament_uuid}: {a_name} vs {b_name}',
+            xaxis_title='Rounds',
+            yaxis_title='Participants',
+            yaxis=dict(tickvals=np.arange(len(df.columns)), ticktext=df.columns)  # Set y-axis labels to participant names
+        )
 
-        graphs.append(dcc.Graph(figure=fig))  # Add each figure to the list of graphs
+        graphs.append(dcc.Graph(figure=choice_fig))  # Add each figure to the list of graphs
 
     return graphs
 
