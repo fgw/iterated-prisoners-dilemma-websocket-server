@@ -61,6 +61,8 @@ def calculate_scores(df):
             cumulative_scores[0] += scoring_matrix[1][1][0]
             cumulative_scores[1] += scoring_matrix[1][1][1]
         
+        # TODO: Handle forfeits
+
         scores[0].append(cumulative_scores[0])
         scores[1].append(cumulative_scores[1])
 
@@ -98,6 +100,7 @@ def update_output(n):
 
         graphs.append(dcc.Graph(figure=score_fig))
 
+        # TODO: Plot choices
 
     return graphs
 
