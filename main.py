@@ -20,6 +20,8 @@ TOURNAMENTS = {}
 
 history_path = os.path.join("tournaments")
 participants_file = os.path.join("participants", "participants.csv")
+round_delay_seconds = 1
+n_rounds = 100
 
 
 def get_history_file(tournament):
@@ -206,7 +208,7 @@ async def main(port: int = 8000):
 
   async with serve(handler, "localhost", port, process_request=process_request):
     while True:
-      await asyncio.sleep(0.2)
+      await asyncio.sleep(round_delay_seconds)
       completed_tournaments = []
       for tournament_uuid, tournament in TOURNAMENTS.items():
         if tournament['stage'] == 'Waiting for players' and len(tournament['participants']) == 2 and None not in tournament['state']:
@@ -223,8 +225,8 @@ async def main(port: int = 8000):
             line = ','.join([state if state is not None else "Forfeit" for state in tournament['state']])
             f.write(f"{line}\n")
 
-          # Terminate after 100 rounds
-          if tournament['round'] >= 100:
+          # Terminate after n_rounds
+          if tournament['round'] >= n_rounds:
             with open(get_history_file(tournament_uuid), 'a') as f:
               # No new line to make it easier to find
               f.write(f"# COMPLETED")
