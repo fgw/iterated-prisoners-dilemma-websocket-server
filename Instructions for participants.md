@@ -8,11 +8,6 @@ Basic Scenario: Two players must decide whether to cooperate (C) or defect/betra
 
 Iterated Format: Unlike a single round, this tournament will consist of multiple rounds, allowing players to adjust their strategies based on previous interactions. This setup emphasizes the importance of trust, reputation, and strategic thinking.
 
-# Tournament Details
-Date and Time: [Insert date and time]
-Location: [Insert location or virtual meeting link]
-Format: Each participant will play against every other participant in a series of rounds. Points will be awarded based on the outcomes of each round, and the player with the highest score at the end will be declared the winner.
-
 # What to Prepare
 - Understand the Rules: Familiarize yourself with the basic rules of the game. A detailed rulebook will be provided closer to the tournament date.
 - Strategy Development: Think about your approach—will you prioritize cooperation or adopt a more competitive stance?
@@ -22,6 +17,10 @@ I encourage all participants to engage actively and share their insights through
 
 If you have any questions or need further clarification, please feel free to reach out.
 Looking forward to seeing you there!
+
+# Further Reading
+
+[https://gametheory101.com/courses/game-theory-101/the-prisoners-dilemma-and-strict-dominance/](https://gametheory101.com/courses/game-theory-101/the-prisoners-dilemma-and-strict-dominance/)
 
 # Process flow for participants
 
