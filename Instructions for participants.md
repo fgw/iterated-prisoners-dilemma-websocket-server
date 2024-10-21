@@ -1,13 +1,7 @@
-# Title
-
-Dear Participants,
-
-I hope this message finds you well! I am excited to invite you to participate in our upcoming Iterated Prisoner's Dilemma Tournament. This event promises not only to be intellectually stimulating but also a fantastic opportunity for collaboration and strategy development.
-
 # What is the Iterated Prisoner's Dilemma?
 
 The Iterated Prisoner's Dilemma is a classic game in game theory that explores the complexities of cooperation and competition. Here’s a brief overview:
-Basic Scenario: Two players must decide whether to cooperate (C) or defect (D). The outcomes depend on both players' choices:
+Basic Scenario: Two players must decide whether to cooperate (C) or defect/betray (B). The outcomes depend on both players' choices:
 - If both cooperate, they receive moderate rewards.
 - If one defects while the other cooperates, the defector receives a higher reward while the cooperator gets nothing.
 - If both defect, they receive minimal rewards.
@@ -28,14 +22,6 @@ I encourage all participants to engage actively and share their insights through
 
 If you have any questions or need further clarification, please feel free to reach out.
 Looking forward to seeing you there!
-
-Best regards,
-[Your Name]
-[Your Position]
-[Your Contact Information]
-[Organization Name]
-
-
 
 # Process flow for participants
 
