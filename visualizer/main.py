@@ -2,12 +2,16 @@ import os
 
 import dash
 from dash import dcc, html, Input, Output
+import plotly.graph_objects as go
 import pandas as pd
 from pandas.errors import EmptyDataError
-from component_generator import generate_tournament_overview_table, generate_score_progression_figure
+import numpy as np
+from component_generator import generate_summary_table, generate_score_progression_figure
 from styles import HEADER_1, HEADER_2, CONTAINER
 
-DATA_DIR = 'tournaments'
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+DATA_DIR = os.path.join(parent_dir, "tournaments")
 
 app = dash.Dash(__name__)
 
@@ -34,7 +38,7 @@ app.layout = html.Div([
 def update_overview_container(n):
     components = []
     dataframes = read_csv_files_from_directory(DATA_DIR)
-    components.append(generate_tournament_overview_table(dataframes))
+    components.append(generate_summary_table(dataframes))
     return components
 
 def read_csv_files_from_directory(directory):
@@ -53,8 +57,8 @@ def calculate_scores(df):
     # Define scoring rules (C,C -> 3 points each; C,B -> 0 points for C; B,C -> 5 points for B; B,B -> 1 point each)
     scoring_matrix = [
         # C      B    
-        [(3, 3), (5, 0)], # C
-        [(0, 5), (1, 1)] # B
+        [(1, 1), (0, 3)], # C
+        [(3, 0), (2, 2)] # B
     ]
 
     forfeit_score = 0
@@ -164,4 +168,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    app.run_server(debug=args.debug)
+    app.run_server(debug=args.debug, host='0.0.0.0', port=8050)

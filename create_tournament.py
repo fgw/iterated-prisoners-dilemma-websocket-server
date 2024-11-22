@@ -3,6 +3,11 @@ import uuid
 import datetime 
 import pytz
 
+def append_to_record(tournament_uuid, a, b):
+    record_file = 'tournament_records.txt'
+    with open(record_file, 'a') as f:
+        f.write(f"{tournament_uuid},{a},{b}\n")
+
 
 if __name__ == "__main__":
   import argparse
@@ -31,3 +36,5 @@ if __name__ == "__main__":
     current_time_str = dt.strftime("%Y-%m-%dT%H:%M:%S%z")
     f.write(f"# {current_time_str}\n")
     f.write(f"# Participants: [{a},{b}]\n")
+
+  append_to_record(tournament_uuid, a, b)

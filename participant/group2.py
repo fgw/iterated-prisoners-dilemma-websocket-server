@@ -2,10 +2,10 @@ from websockets.sync.client import connect
 import random
 
 # Parameters will be issued during the tournament
-url = "ws://ec2-18-143-47-19.ap-southeast-1.compute.amazonaws.com:8000"
-tournament = "f00c2bd8-793c-4eba-a6c1-ee5589470b76"
-participant = "grouptest2"
-token = "L9qms8bwXFTmQ5oa621gBl4U4ifHM2kW"
+url = "ws://127.0.0.1:8000"
+tournament = "aad7b16a-4835-4955-8960-23aa8309007a"
+participant = "group2"
+token = "MCBaB5foLETpeRm3d0AGv28iIdyoXZvT"
 
 # grouptest1 vs grouptest2: f00c2bd8-793c-4eba-a6c1-ee5589470b76
 # grouptest1	WmLVWUgnNjwrIl5KaK0IRNqCApL6ujNl

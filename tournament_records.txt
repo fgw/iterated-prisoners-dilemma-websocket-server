@@ -1,0 +1,8 @@
+aad7b16a-4835-4955-8960-23aa8309007a,group1,group2
+72981366-8550-4c0e-a857-8a4d6a87196b,group3,group4
+9b8479f9-25db-49c3-b378-c5c9faddb229,group5,group6
+7fb16001-428c-41ee-bf04-e254bf67237a,group7,group8
+73bdeedc-2821-4b46-811a-22e9b5dbd505,group1,group5
+c82ab5e1-a396-4e35-b77a-55830007133b,group2,group6
+57aa4b65-7c40-4a1d-a2f8-e5e454f427ea,group3,group7
+7daa49d9-88e0-4cd0-bdf1-879af92a396c,group4,group8

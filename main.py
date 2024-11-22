@@ -10,8 +10,15 @@ from websockets.asyncio.server import serve
 from websockets.http11 import Response
 from websockets.datastructures import Headers
 
+from OpenSSL import crypto
+import ssl
 
 logger = logging.getLogger(__name__)
+
+
+# Global configuration
+#USE_SSL = False  # Global flag to control SSL usage
+USE_SSL = False
 
 
 # Global connection pool
@@ -22,6 +29,45 @@ history_path = os.path.join("tournaments")
 participants_file = os.path.join("participants", "participants.csv")
 round_delay_seconds = 1
 n_rounds = 100
+
+
+def create_self_signed_cert():
+    
+    # Only create if SSL is enabled and certs don't exist
+    if not USE_SSL:
+        return
+    
+    # generate key
+    key = crypto.PKey()
+    key.generate_key(crypto.TYPE_RSA, 2048)
+    
+    # create cert
+    cert = crypto.X509()
+    cert.get_subject().CN = "localhost"
+    cert.set_serial_number(1000)
+    cert.gmtime_adj_notBefore(0)
+    cert.gmtime_adj_notAfter(365*24*60*60) 
+    cert.set_issuer(cert.get_subject())
+    cert.set_pubkey(key)
+    cert.sign(key, 'sha256')
+    
+    # save the key and cert
+    with open("cert.pem", "wb") as f:
+        f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+    with open("key.pem", "wb") as f:
+        f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
+
+
+def get_ssl_context():
+    if not USE_SSL:
+        return None
+        
+    if not (os.path.exists("cert.pem") and os.path.exists("key.pem")):
+        create_self_signed_cert()
+        
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ssl_context.load_cert_chain("cert.pem", "key.pem")
+    return ssl_context
 
 
 def get_history_file(tournament):
@@ -203,50 +249,61 @@ async def send(tournament: str, participant: str, message: str):
 
 
 async def main(port: int = 8000):
-  # Log to stdout
-  logging.basicConfig(handlers=[logging.StreamHandler()], level=logging.INFO)
+    # make sure the cert exist
+    #if not (os.path.exists("cert.pem") and os.path.exists("key.pem")):
+        #create_self_signed_cert()
+    
+    # configue the SSL
+    #ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    #ssl_context.load_cert_chain("cert.pem", "key.pem")
 
-  async with serve(handler, "localhost", port, process_request=process_request):
-    while True:
-      await asyncio.sleep(round_delay_seconds)
-      completed_tournaments = []
-      for tournament_uuid, tournament in TOURNAMENTS.items():
-        if tournament['stage'] == 'Waiting for players' and len(tournament['participants']) == 2 and None not in tournament['state']:
-          with open(get_history_file(tournament_uuid), 'a') as f:
-            line = ','.join(tournament['participants'])
-            f.write(f"{line}\n")
-          tournament['stage'] = 'Started'
-        if tournament['stage'] == 'Started':
-          state = [s for s in tournament['state']]
-          # Write to history
-          # This appears to be a bottleneck
-          with open(get_history_file(tournament_uuid), 'a') as f:
-            # Convert state to comma separated string, replace None with "Forfeit"
-            line = ','.join([state if state is not None else "Forfeit" for state in tournament['state']])
-            f.write(f"{line}\n")
+    ssl_context = get_ssl_context()
 
-          # Terminate after n_rounds
-          if tournament['round'] >= n_rounds:
+    # Log to stdout
+    logging.basicConfig(handlers=[logging.StreamHandler()], level=logging.INFO)
+
+  # async with serve(handler, "0.0.0.0", port, process_request=process_request):
+    async with serve(handler, "0.0.0.0", port, ssl=ssl_context, process_request=process_request):
+      while True:
+        await asyncio.sleep(round_delay_seconds)
+        completed_tournaments = []
+        for tournament_uuid, tournament in TOURNAMENTS.items():
+          if tournament['stage'] == 'Waiting for players' and len(tournament['participants']) == 2 and None not in tournament['state']:
             with open(get_history_file(tournament_uuid), 'a') as f:
-              # No new line to make it easier to find
-              f.write(f"# COMPLETED")
-            completed_tournaments.append(tournament_uuid)
-          else:
-            # Reset round
-            TOURNAMENTS[tournament_uuid]['state'] = [None, None]
-            TOURNAMENTS[tournament_uuid]['round'] += 1
-          
-          # Send opponent's choices to participants after the server is ready to recieve new inputs
-          await send(tournament_uuid, tournament['participants'][0], state[1])
-          await send(tournament_uuid, tournament['participants'][1], state[0])
-      for tournament_uuid in completed_tournaments:
-        del TOURNAMENTS[tournament_uuid]
-        logger.info({
-          'message': "Deleted tournament",
-          'tournament': tournament_uuid
-        })
-      completed_tournaments = []
-    await asyncio.get_running_loop().create_future()
+              line = ','.join(tournament['participants'])
+              f.write(f"{line}\n")
+            tournament['stage'] = 'Started'
+          if tournament['stage'] == 'Started':
+            state = [s for s in tournament['state']]
+            # Write to history
+            # This appears to be a bottleneck
+            with open(get_history_file(tournament_uuid), 'a') as f:
+              # Convert state to comma separated string, replace None with "Forfeit"
+              line = ','.join([state if state is not None else "Forfeit" for state in tournament['state']])
+              f.write(f"{line}\n")
+
+            # Terminate after n_rounds
+            if tournament['round'] >= n_rounds-1:
+              with open(get_history_file(tournament_uuid), 'a') as f:
+                # No new line to make it easier to find
+                f.write(f"# COMPLETED")
+              completed_tournaments.append(tournament_uuid)
+            else:
+              # Reset round
+              TOURNAMENTS[tournament_uuid]['state'] = [None, None]
+              TOURNAMENTS[tournament_uuid]['round'] += 1
+
+            # Send opponent's choices to participants after the server is ready to recieve new inputs
+            await send(tournament_uuid, tournament['participants'][0], state[1])
+            await send(tournament_uuid, tournament['participants'][1], state[0])
+        for tournament_uuid in completed_tournaments:
+          del TOURNAMENTS[tournament_uuid]
+          logger.info({
+            'message': "Deleted tournament",
+            'tournament': tournament_uuid
+          })
+        completed_tournaments = []
+      await asyncio.get_running_loop().create_future()
 
 
 if __name__ == "__main__":

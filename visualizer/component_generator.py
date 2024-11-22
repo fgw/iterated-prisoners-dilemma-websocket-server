@@ -4,14 +4,14 @@ from styles import TABLE_STYLES, COLORS, TYPOGRAPHY, SPACING, LINE_COLORS
 TOURNAMENT_ID = "Tournament ID"
 
 
-def generate_tournament_overview_table(dataframes):
+def generate_summary_table(dataframes):
     data = []
     for tournament_id, df in dataframes.items():
         progress = len(df) if df is not None else 0
         data.append(
             {
                 TOURNAMENT_ID: tournament_id,
-                "Progress": "Completed" if progress == 100 else f"Iteration {progress}",
+                "Progress": "Completed" if progress == 100 else f"Round {progress}",
             }
         )
 
@@ -28,10 +28,6 @@ def generate_tournament_overview_table(dataframes):
         markdown_options={"html": True},
         style_table=TABLE_STYLES["table"],
     )
-
-
-def generate_group_overview_table(all_scores):
-    pass
 
 
 def generate_score_progression_figure(tournament_uuid, scores):
@@ -71,7 +67,7 @@ def generate_score_progression_figure(tournament_uuid, scores):
                     "yanchor": "top",
                 },
                 "xaxis": {
-                    "title": "Iteration",
+                    "title": "Round",
                     "dtick": 10,
                     "gridcolor": COLORS["background"]["alternate"],
                     "titlefont": {
