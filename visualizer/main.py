@@ -2,11 +2,9 @@ import os
 
 import dash
 from dash import dcc, html, Input, Output
-import plotly.graph_objects as go
 import pandas as pd
 from pandas.errors import EmptyDataError
-import numpy as np
-from component_generator import generate_summary_table, generate_score_progression_figure
+from component_generator import generate_tournament_overview_table, generate_score_progression_figure
 from styles import HEADER_1, HEADER_2, CONTAINER
 
 DATA_DIR = 'tournaments'
@@ -36,7 +34,7 @@ app.layout = html.Div([
 def update_overview_container(n):
     components = []
     dataframes = read_csv_files_from_directory(DATA_DIR)
-    components.append(generate_summary_table(dataframes))
+    components.append(generate_tournament_overview_table(dataframes))
     return components
 
 def read_csv_files_from_directory(directory):
